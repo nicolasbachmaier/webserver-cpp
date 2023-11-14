@@ -13,4 +13,7 @@ add_executable(Webserver main.cpp
         file_handler.cpp
         file_handler.h
         utils.cpp
-        utils.h)
+        utils.h
+        request.cpp
+        request.h
+        headers.h)

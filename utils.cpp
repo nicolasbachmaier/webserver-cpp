@@ -1,4 +1,4 @@
-#include "utils.h"
+#include "headers.h"
 
 std::string Utils::URL_Decode(const std::string &URL) {
     std::string decodedURL;
@@ -19,4 +19,21 @@ std::string Utils::URL_Decode(const std::string &URL) {
         }
     }
     return decodedURL;
+}
+
+std::unordered_map<std::string, std::string> Utils::parse_request (const std::string &str) {
+    std::unordered_map<std::string, std::string> values;
+    std::istringstream iss(str);
+    std::string line;
+    while (std::getline(iss, line)) {
+        std::istringstream lineStream(line);
+        std::string key, value;
+        if (std::getline(lineStream, key, ':') && std::getline(lineStream, value)) {
+            // Trim leading and trailing whitespace from value
+            value.erase(0, value.find_first_not_of(' '));
+            value.erase(value.find_last_not_of(' ') + 1);
+            values[key] = value;
+        }
+    }
+    return values;
 }

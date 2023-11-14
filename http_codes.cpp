@@ -1,4 +1,4 @@
-#include "http_codes.h"
+#include "headers.h"
 
 const std::string HttpCodes::HTTP_CONTINUE = "HTTP/1.1 100 Continue";
 const std::string HttpCodes::HTTP_SWITCHING_PROTOCOLS = "HTTP/1.1 101 Switching Protocols";

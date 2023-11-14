@@ -1,17 +1,5 @@
 #pragma once
-
-#include <string>
-#include <utility>
-#include "http_codes.h"
-#include "content_type.h"
-#include "file_handler.h"
-
-class Request {
-public:
-    std::string method;
-    std::string location;
-};
-
+#include "headers.h"
 class Webserver {
 public:
     static const std::string name;
@@ -20,5 +8,4 @@ public:
 
     static std::string response_builder(const Request& request);
     static Custom_File get_content(std::string file_name="index.html");
-    static Request parse_request(std::string request_content);
 };

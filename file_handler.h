@@ -1,5 +1,5 @@
 #pragma once
-#include <string>
+#include "headers.h"
 
 struct Custom_File {
     unsigned long length;

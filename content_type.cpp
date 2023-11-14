@@ -1,4 +1,4 @@
-#include "content_type.h"
+#include "headers.h"
 
 const std::string ContentType::TEXT_PLAIN = "Content-Type: text/plain";
 const std::string ContentType::TEXT_HTML = "Content-Type: text/html";

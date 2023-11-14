@@ -1,12 +1,4 @@
-//
-// Created by Nicolas Bachmaier on 13.11.23.
-//
-
-#include "webserver.h"
-#include <fstream>
-#include <iostream>
-#include "utils.h"
-
+#include "headers.h"
 
 const std::string Webserver::name = "Bachmaier Technology";
 const int Webserver::HTTP_Port = 80;
@@ -53,65 +45,3 @@ Custom_File Webserver::get_content(std::string file_name) {
     return custom_file;
 }
 
-Request Webserver::parse_request(std::string request_content) {
-    int pointer = 0; //points to the parsed position
-    Request request;
-
-    // Get the Method
-    std::string method_input;
-    for (pointer; pointer < request_content.length(); pointer++) {
-        if(request_content[pointer] == ' ')
-            break;
-        method_input += request_content[pointer];
-    }
-    // Set_Method via Map to later implement a control mechanism
-    std::unordered_map<std::string, std::function<void()>> method_map;
-    method_map["GET"] = [&request]() {
-        request.method = "GET";
-    };
-    method_map["POST"] = [&request]() {
-        request.method = "POST";
-    };
-    method_map["PUT"] = [&request]() {
-        request.method = "PUT";
-    };
-    method_map["DELETE"] = [&request]() {
-        request.method = "DELETE";
-    };
-    method_map["HEAD"] = [&request]() {
-        request.method = "HEAD";
-    };
-    method_map["OPTIONS"] = [&request]() {
-        request.method = "OPTIONS";
-    };
-    method_map["CONNECT"] = [&request]() {
-        request.method = "CONNECT";
-    };
-    method_map["TRACE"] = [&request]() {
-        request.method = "TRACE";
-    };
-
-    if (method_map.count(method_input) > 0) {
-        method_map[method_input]();
-    } else {
-        method_map["GET"]();
-    }
-
-
-    // Get the requested Location
-    std::string location_input;
-    for (pointer++; pointer < request_content.length(); pointer++) {
-        if(request_content[pointer] == ' ')
-            break;
-        location_input += request_content[pointer];
-    }
-    request.location = location_input;
-
-
-
-    std::cout << "Method: " << request.method << std::endl;
-    std::cout << "Location: " << request.location << std::endl;
-    std::cout << std::endl;
-
-    return request;
-}

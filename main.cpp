@@ -1,11 +1,4 @@
-#include <iostream>  // For input-output operations
-#include <sys/socket.h>  // For socket functions
-#include <netinet/in.h>  // For constants and structures needed for internet domain addresses
-#include <unistd.h>  // For close() function
-#include <cstring>  // For memset function (if needed)
-#include <arpa/inet.h>
-
-#include "webserver.h"
+#include "headers.h"
 
 const int BUFFER_SIZE = 1024;
 
@@ -91,7 +84,7 @@ int main() {
             }
         } // Macbook Terminal can't handle the \r
         Request request;
-        request = Webserver::parse_request(processedData);
+        request = Request::parse_request(processedData);
         std::cout << "Received Data: " << processedData << std::endl;
 
         std::cout << std::endl;
