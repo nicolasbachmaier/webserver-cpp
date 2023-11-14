@@ -1,19 +1,21 @@
 #pragma once
 
-#include "Webserver.h"
 #include "headers.h"
+#include "request.h"
 
-class Response : public Webserver {
+class Response {
 public:
     std::string status;
     std::string date;
     std::string last_modified;
     std::string etag;
     std::string accept_ranges;
-    std::string content_length;
+    unsigned long content_length;
     std::string content_type;
     std::string connection;
     std::string body;
 
-    static void response_builder(const Request &request);
+    static std::string response_builder(const Request &request);
+
+    static Response get_content(std::string file_name = "index.html");
 };

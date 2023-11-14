@@ -14,20 +14,20 @@ int main() {
 
     int opt = 1;
     // Options at Socket Level
-    #ifdef __APPLE__
+#ifdef __APPLE__
     // Set only SO_REUSEADDR
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
-            perror("Setsockopt Error");
-            std::cerr << "Setsockopt failed" << std::endl;
-            exit(EXIT_FAILURE);
-        }
-    #else
-        if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
-            perror("Setsockopt Error");
-            std::cerr << "Setsockopt failed" << std::endl;
-            exit(EXIT_FAILURE);
-        }
-    #endif
+        perror("Setsockopt Error");
+        std::cerr << "Setsockopt failed" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+#else
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
+        perror("Setsockopt Error");
+        std::cerr << "Setsockopt failed" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+#endif
 
 
     struct sockaddr_in address;
@@ -36,7 +36,7 @@ int main() {
     address.sin_port = htons(webserver.HTTP_Port); // Set the Port - htons makes sure about the network byte order
 
     // Bind options to the Socket
-    if(bind(server_fd, (struct sockaddr *)&address, sizeof(address))) {
+    if (bind(server_fd, (struct sockaddr *) &address, sizeof(address))) {
         std::cerr << "Bind failed" << std::endl;
         exit(EXIT_FAILURE);
     }
@@ -47,7 +47,7 @@ int main() {
     }
     int addrlen = sizeof(address);
     while (true) {
-        int new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
+        int new_socket = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &addrlen);
         // Starts a new socket with the first connection request from the queue.
         if (new_socket < 0) {
             std::cerr << "Accept failed" << std::endl;
@@ -61,7 +61,7 @@ int main() {
         std::vector<char> buffer(BUFFER_SIZE);
         int bytesReceived = recv(new_socket, &buffer[0], buffer.size() - 1, 0);
 
-        if(bytesReceived <= 0) {
+        if (bytesReceived <= 0) {
             if (bytesReceived == 0) {
                 std::cout << "The client has closed the connection." << std::endl;
             } else {
@@ -78,7 +78,7 @@ int main() {
         std::string processedData;
         processedData.reserve(receivedData.size());
 
-        for (char c : receivedData) {
+        for (char c: receivedData) {
             if (c != '\r') {
                 processedData.push_back(c);
             }
@@ -89,7 +89,7 @@ int main() {
 
         std::cout << std::endl;
 
-        std::string httpResponse = Webserver::response_builder(request);
+        std::string httpResponse = Response::response_builder(request);
 
         send(new_socket, httpResponse.c_str(), httpResponse.length(), 0);
         // Close the socket after handling it
