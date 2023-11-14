@@ -16,4 +16,6 @@ add_executable(Webserver main.cpp
         utils.h
         request.cpp
         request.h
-        headers.h)
+        headers.h
+        response.cpp
+        response.h)

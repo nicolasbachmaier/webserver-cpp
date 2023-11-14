@@ -7,7 +7,7 @@ Request Request::parse_request(std::string request_content) {
     // Get the Method
     std::string method_input;
     for (pointer; pointer < request_content.length(); pointer++) {
-        if(request_content[pointer] == ' ')
+        if (request_content[pointer] == ' ')
             break;
         method_input += request_content[pointer];
     }
@@ -48,7 +48,7 @@ Request Request::parse_request(std::string request_content) {
     // Get the requested Location
     std::string location_input;
     for (pointer++; pointer < request_content.length(); pointer++) {
-        if(request_content[pointer] == ' ')
+        if (request_content[pointer] == ' ')
             break;
         location_input += request_content[pointer];
     }
@@ -57,12 +57,12 @@ Request Request::parse_request(std::string request_content) {
     std::string other_headers;
     int body_breakpoint;
     for (pointer++; pointer < request_content.length(); pointer++) {
-        if(request_content[pointer] == '\n')
+        if (request_content[pointer] == '\n')
             body_breakpoint++;
         else
             body_breakpoint = 0;
 
-        if(body_breakpoint > 1)
+        if (body_breakpoint > 1)
             break;
 
         other_headers += request_content[pointer];
@@ -88,14 +88,33 @@ Request Request::parse_request(std::string request_content) {
 }
 
 void Request::populate_header_request(const std::unordered_map<std::string, std::string> &values) {
-    host = values.at("Host");
-    sec_fetch_site = values.at("Sec-Fetch-Site");
-    connection = values.at("Connection");
-    upgrade_insecure_requests = std::stoi(values.at("Upgrade-Insecure-Requests"));
-    sec_fetch_mode = values.at("Sec-Fetch-Mode");
-    accept = values.at("Accept");
-    user_agent = values.at("User-Agent");
-    accept_language = values.at("Accept-Language");
-    sec_fetch_dest = values.at("Sec-Fetch-Dest");
-    accept_encoding = values.at("Accept-Encoding");
+    auto it = values.find("Host");
+    host = (it != values.end()) ? it->second : "Null";
+
+    it = values.find("Sec-Fetch-Site");
+    sec_fetch_site = (it != values.end()) ? it->second : "Null";
+
+    it = values.find("Connection");
+    connection = (it != values.end()) ? it->second : "Null";
+
+    it = values.find("Upgrade-Insecure-Requests");
+    upgrade_insecure_requests = (it != values.end()) ? std::stoi(it->second) : 0;
+
+    it = values.find("Sec-Fetch-Mode");
+    sec_fetch_mode = (it != values.end()) ? it->second : "Null";
+
+    it = values.find("Accept");
+    accept = (it != values.end()) ? it->second : "Null";
+
+    it = values.find("User-Agent");
+    user_agent = (it != values.end()) ? it->second : "Null";
+
+    it = values.find("Accept-Language");
+    accept_language = (it != values.end()) ? it->second : "Null";
+
+    it = values.find("Sec-Fetch-Dest");
+    sec_fetch_dest = (it != values.end()) ? it->second : "Null";
+
+    it = values.find("Accept-Encoding");
+    accept_encoding = (it != values.end()) ? it->second : "Null";
 }
