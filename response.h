@@ -9,10 +9,10 @@ public:
     std::string date;
     std::string last_modified;
     std::string etag;
-    std::string accept_ranges;
+    static std::string accept_ranges;
     unsigned long content_length;
     std::string content_type;
-    std::string connection;
+    static std::string connection;
     std::string body;
 
     static std::string response_builder(const Request &request);
