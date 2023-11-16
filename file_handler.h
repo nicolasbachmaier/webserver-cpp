@@ -8,11 +8,14 @@ struct Custom_File {
     std::string name;
     std::string content;
     std::string last_modified_date;
+    std::chrono::time_point<std::chrono::steady_clock> last_access;
 };
 
 class Custom_File_Handler {
 private:
-    static void create_file(const std::string &file_name);
+    static std::mutex fileObjectMutex;
+
+    static void create_file(const std::string &file_name, std::filesystem::path &file_path);
 
     static void delete_file();
 
@@ -22,4 +25,6 @@ public:
     static void file_monitor();
 
     static Response get_file(const std::string &file_name);
+
+    static void print_all_file_names();
 };
