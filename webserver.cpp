@@ -15,7 +15,10 @@ std::unordered_map<int, int> Webserver::server_fd;
 std::unordered_map<int, struct sockaddr_in> Webserver::address;
 std::unordered_map<int, int> Webserver::addrlen;
 
+std::mutex map_mutex;
+
 void Webserver::initialize_socket(const int &port) {
+    std::lock_guard<std::mutex> lock(map_mutex); // Thread-Safety
     // File Descriptor for the Server Socket (IPv4 Protocol + TCP)
     server_fd.insert(std::make_pair(port, socket(AF_INET, SOCK_STREAM, 0)));
     if (server_fd.at(port) == 0) {

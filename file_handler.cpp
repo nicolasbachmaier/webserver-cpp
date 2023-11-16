@@ -1,5 +1,7 @@
 #include "headers.h"
 
+std::unordered_map<std::string, Custom_File> Custom_File_Handler::file_object;
+
 void Custom_File_Handler::create_file(const std::string &file_name) {
     std::string html_path = "html/";
     std::filesystem::path file_path(html_path + file_name);

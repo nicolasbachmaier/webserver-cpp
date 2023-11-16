@@ -36,5 +36,5 @@ Response Response::get_content(std::string file_name) {
     if (file_name.find('.') == std::string::npos)
         file_name += ".html";
 
-
+    return Custom_File_Handler::get_file(file_name);
 }
