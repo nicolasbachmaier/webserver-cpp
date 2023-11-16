@@ -36,27 +36,5 @@ Response Response::get_content(std::string file_name) {
     if (file_name.find('.') == std::string::npos)
         file_name += ".html";
 
-    std::ifstream file("html/" + file_name);
-    std::string content;
-    char ch;
 
-    while (file.get(ch)) {
-        content += ch;
-    }
-    file.close();
-
-    // Get the current time
-    time_t time_now = time(0);
-    tm *gmt_tm = gmtime(&time_now);
-    char current_date_buffer[80];
-    // Format: Tue, 15 Nov 2023 12:45:26 GMT
-    strftime(current_date_buffer, sizeof(current_date_buffer), "%a, %d %b %Y %H:%M:%S GMT", gmt_tm);
-    std::string current_date(current_date_buffer);
-
-    Response response;
-    response.content_type = ContentType::get_content_type(file_name);
-    response.body = content;
-    response.content_length = content.length();
-    response.date = current_date;
-    return response;
 }
