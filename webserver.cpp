@@ -26,6 +26,16 @@ void Webserver::initialize_socket(const int &port) {
         exit(EXIT_FAILURE);
     }
 
+    // Set socket to non-blocking mode
+    int flags = fcntl(server_fd.at(port), F_GETFL, 0);
+    if (flags < 0) {
+        std::cerr << "Error getting socket flags" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    if (fcntl(server_fd.at(port), F_SETFL, flags | O_NONBLOCK) < 0) {
+        std::cerr << "Error setting socket to non-blocking" << std::endl;
+        exit(EXIT_FAILURE);
+    }
     int opt = 1;
     // Options at Socket Level
 #ifdef __APPLE__
@@ -36,7 +46,7 @@ void Webserver::initialize_socket(const int &port) {
         exit(EXIT_FAILURE);
     }
 #else
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
+    if (setsockopt(server_fd.at(port), SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
         perror("Setsockopt Error");
         std::cerr << "Setsockopt failed" << std::endl;
         exit(EXIT_FAILURE);
@@ -67,48 +77,80 @@ void Webserver::start_webserver(const int &port) {
         int new_socket = accept(server_fd.at(port), (struct sockaddr *) &address.at(port),
                                 (socklen_t *) &addrlen.at(port));
         if (new_socket < 0) {
-            std::cerr << "Accept failed" << std::endl;
-            continue;
+            // Check for the specific non-blocking mode error
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                continue;
+            } else {
+                std::cerr << "Accept failed: " << strerror(errno) << std::endl;
+                continue;
+            }
         }
 
         char client_ip[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &(address.at(port).sin_addr), client_ip, INET_ADDRSTRLEN);
         std::cout << "New connection from " << client_ip << std::endl;
 
-        std::vector<char> buffer(BUFFER_SIZE);
-        int bytesReceived = recv(new_socket, &buffer[0], buffer.size() - 1, 0);
+        std::string receivedData;
+        std::string httpResponse;
+        std::cout << port << std::endl;
 
-        if (bytesReceived <= 0) {
-            if (bytesReceived == 0) {
-                std::cout << "The client has closed the connection." << std::endl;
-            } else {
-                std::cerr << "Failed to receive data from client" << std::endl;
+        if (port == HTTPS_Port) {
+            SSL_Connection sslConn("/etc/letsencrypt/live/nicolasbachmaier.com/fullchain.pem",
+                                   "/etc/letsencrypt/live/nicolasbachmaier.com/privkey.pem");
+            sslConn.accept(new_socket);
+            std::vector<char> buffer(BUFFER_SIZE);
+            receivedData = sslConn.read();
+            std::cout << "Received Data 2: " << receivedData << std::endl;
+            std::string processedData;
+            processedData.reserve(receivedData.size());
+
+            for (char c: receivedData) {
+                if (c != '\r') {
+                    processedData.push_back(c);
+                }
             }
-            continue;
+            Request request = Request::parse_request(processedData);
+            std::cout << "Received Data: " << processedData << std::endl;
+
+            httpResponse = Response::response_builder(request);
+            sslConn.write(httpResponse);
+        } else {
+            std::vector<char> buffer(BUFFER_SIZE);
+            int bytesReceived = recv(new_socket, &buffer[0], buffer.size() - 1, 0);
+
+            if (bytesReceived <= 0) {
+                if (bytesReceived == 0) {
+                    std::cout << "The client has closed the connection." << std::endl;
+                } else {
+                    std::cerr << "Failed to receive data from client" << std::endl;
+                }
+                close(new_socket);
+                continue;
+            }
+
+            buffer[bytesReceived] = '\0';
+
+            std::cout << "Data length is " << bytesReceived << std::endl;
+
+            receivedData = &buffer[0];
+            std::string processedData;
+            processedData.reserve(receivedData.size());
+
+            for (char c: receivedData) {
+                if (c != '\r') {
+                    processedData.push_back(c);
+                }
+            } // Macbook Terminal can't handle the \r
+            Request request;
+            request = Request::parse_request(processedData);
+            std::cout << "Received Data: " << processedData << std::endl;
+
+            std::cout << std::endl;
+
+            httpResponse = Response::response_builder(request);
+
+            send(new_socket, httpResponse.c_str(), httpResponse.length(), 0);
         }
-
-        buffer[bytesReceived] = '\0';
-
-        std::cout << "Data length is " << bytesReceived << std::endl;
-
-        std::string receivedData(&buffer[0]);
-        std::string processedData;
-        processedData.reserve(receivedData.size());
-
-        for (char c: receivedData) {
-            if (c != '\r') {
-                processedData.push_back(c);
-            }
-        } // Macbook Terminal can't handle the \r
-        Request request;
-        request = Request::parse_request(processedData);
-        std::cout << "Received Data: " << processedData << std::endl;
-
-        std::cout << std::endl;
-
-        std::string httpResponse = Response::response_builder(request);
-
-        send(new_socket, httpResponse.c_str(), httpResponse.length(), 0);
         // Close the socket after handling it
         close(new_socket);
     }
