@@ -15,6 +15,7 @@
 #include <netinet/in.h>
 #include <sstream>
 #include <string>
+#include <sys/select.h>
 #include <sys/socket.h>
 #include <thread>
 #include <unordered_map>
