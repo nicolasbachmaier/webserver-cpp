@@ -17,5 +17,5 @@ public:
 
     static std::string response_builder(const Request &request);
 
-    static Response get_content(std::string file_name = "index.html");
+    static Response get_content(std::string host, std::string file_name);
 };

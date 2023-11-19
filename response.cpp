@@ -4,7 +4,7 @@ std::string Response::accept_ranges = "bytes";
 std::string Response::connection = "keep-alive";
 
 std::string Response::response_builder(const Request &request) {
-    Response response = Response::get_content(request.location);
+    Response response = Response::get_content(request.host, request.location);
 
     return HttpCodes::HTTP_OK + "\r\n" +
            response.content_type + "; charset=UTF-8\r\n" +
@@ -25,7 +25,7 @@ std::string Response::response_builder(const Request &request) {
            response.body;
 }
 
-Response Response::get_content(std::string file_name) {
+Response Response::get_content(std::string host, std::string file_name) {
     file_name = Utils::URL_Decode(file_name);
     if (file_name == "/")
         file_name = "index.html";
@@ -36,5 +36,13 @@ Response Response::get_content(std::string file_name) {
     if (file_name.find('.') == std::string::npos)
         file_name += ".html";
 
-    return Custom_File_Handler::get_file(file_name);
+    // Host Evaluation
+    std::filesystem::path host_path = "html/" + host;
+    if (!std::filesystem::exists(host_path)) {
+        std::cout << "Host not found: " << host << std::endl;
+        host = "default";
+    }
+
+
+    return Custom_File_Handler::get_file(host + "/" + file_name);
 }
