@@ -64,7 +64,7 @@ void Webserver::initialize_socket(const int &port) {
         exit(EXIT_FAILURE);
     }
 
-    if (listen(server_fd.at(port), 3) < 0) { // Mark socket as passive + max. queue length for pending connections
+    if (listen(server_fd.at(port), 999) < 0) { // Mark socket as passive + max. queue length for pending connections
         std::cerr << "Listen failed" << std::endl;
         exit(EXIT_FAILURE);
     }
@@ -100,7 +100,11 @@ void Webserver::start_webserver(const int &port) {
             sslConn.accept(new_socket);
             std::vector<char> buffer(BUFFER_SIZE);
             receivedData = sslConn.read();
-            std::cout << "Received Data 2: " << receivedData << std::endl;
+            if (receivedData == "") {
+                std::cout << "Empty Data" << std::endl;
+                close(new_socket);
+                continue;
+            }
             std::string processedData;
             processedData.reserve(receivedData.size());
 

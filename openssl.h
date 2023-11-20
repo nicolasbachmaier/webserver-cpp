@@ -6,6 +6,7 @@ class SSL_Connection {
 private:
     SSL_CTX *ctx;
     SSL *ssl;
+    int handshake_status;
 
     void initialize_ssl_context();
 
@@ -15,7 +16,8 @@ private:
     static bool wait_for_socket(int socket, int mode);
 
 public:
-    SSL_Connection(const std::string &cert_file, const std::string &key_file) : ctx(nullptr), ssl(nullptr) {
+    SSL_Connection(const std::string &cert_file, const std::string &key_file) : ctx(nullptr), ssl(nullptr),
+                                                                                handshake_status(0) {
         initialize_ssl_context();
         configure_context(cert_file, key_file);
     }
